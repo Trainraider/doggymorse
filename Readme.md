@@ -1,5 +1,5 @@
 # Doggy Morse Code
- This program can encode ordinary text into a varient of morse code expressed with barking.
+ This program can encode ordinary text into a variant of morse code expressed with barking.
 
  For example, "Hello world!" becomes:
  
