@@ -1,0 +1,97 @@
+#!/bin/env python3
+
+import argparse
+import sys
+import io
+
+# English to Morse Code dictionary
+ENGLISH_TO_MORSE = {
+    'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 
+    'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
+    'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
+    'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
+    'Y': '-.--', 'Z': '--..', '0': '-----', '1': '.----', '2': '..---', 
+    '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+    '8': '---..', '9': '----.', '.': '.-.-.-', ',': '--..--', '?': '..--..',
+    "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-',
+    '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.',
+    '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.',
+    ' ': '/'
+}
+
+MORSE_TO_ENGLISH = {v: k for k, v in ENGLISH_TO_MORSE.items()}
+MORSE_TO_ENGLISH["_"] = " "
+
+# Morse Code to Doggy Morse Code dictionary
+MORSE_TO_DOGGY_MORSE = {
+    '.': 'bork ', '-': 'baaark ', ' ': '', '/': 'ruff '
+}
+
+# Doggy Morse Code to Morse Code dictionary
+DOGGY_MORSE_TO_MORSE = {v.strip(): k for k, v in MORSE_TO_DOGGY_MORSE.items()}
+DOGGY_MORSE_TO_MORSE["_ruff"] = "/ //"
+
+
+def english_to_morse(english_text):
+    morse_text = ''
+    for char in english_text.upper():
+        if char in ENGLISH_TO_MORSE:
+            morse_text += ENGLISH_TO_MORSE[char] + '/ '
+    return morse_text.rstrip()
+
+
+def morse_to_doggy_morse(morse_text):
+    doggy_morse_text = ''
+    for char in morse_text:
+        if char in MORSE_TO_DOGGY_MORSE:
+            doggy_morse_text += MORSE_TO_DOGGY_MORSE[char]
+    doggy_morse_text = doggy_morse_text.replace("ruff ruff ruff", "ruff ruff")
+    return doggy_morse_text.rstrip()
+
+#!/bin/env python3
+
+def doggy_morse_to_morse(doggy_morse_text):
+    morse_text = ''
+    doggy_morse_text = doggy_morse_text.replace("ruff ruff", "_ruff")
+    for word in doggy_morse_text.split():
+        for char in word.split('-'):
+            if char == '':
+                morse_text += ' '
+            else:
+                if char in DOGGY_MORSE_TO_MORSE:
+                    morse_text += DOGGY_MORSE_TO_MORSE[char]
+    return morse_text.rstrip()
+
+
+def morse_to_english(morse_text):
+    morse_text = morse_text.replace("//", "_/")
+    english_text = ''
+    for word in morse_text.split('/'):
+        for char in word.split():
+            if char in MORSE_TO_ENGLISH:
+                english_text += MORSE_TO_ENGLISH[char]
+    return english_text.rstrip()
+
+def main():
+    parser = argparse.ArgumentParser(description='Translate between English and Doggy Morse Code')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-d', '--doggy', action='store_true', help='Translate to Doggy Morse Code')
+    group.add_argument('-e', '--english', action='store_true', help='Translate to English')
+    parser.add_argument('input', nargs='?', default=sys.stdin, help='Input string to translate')
+    args = parser.parse_args()
+
+    input = args.input
+    if isinstance(input, io.TextIOWrapper):
+        input = input.read()
+
+    if args.doggy:
+        morse_code = english_to_morse(input)
+        doggy_morse_code = morse_to_doggy_morse(morse_code)
+        print(doggy_morse_code)
+    elif args.english:
+        morse_code = doggy_morse_to_morse(str(input))
+        english_text = morse_to_english(morse_code)
+        print(english_text)
+
+if __name__ == '__main__':
+    main()
